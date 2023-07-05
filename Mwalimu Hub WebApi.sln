@@ -3,7 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.4.33403.182
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mwalimu Hub WebApi", "Mwalimu Hub WebApi\Mwalimu Hub WebApi.csproj", "{FCD65838-4D62-412D-AD8C-17FA47C5A2D5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mwalimu Hub WebApi", "Mwalimu Hub WebApi\Mwalimu Hub WebApi.csproj", "{FCD65838-4D62-412D-AD8C-17FA47C5A2D5}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MwalimuHub.Contracts", "MwalimuHub.Contracts\MwalimuHub.Contracts.csproj", "{9BAEDD81-0602-4E9C-8F78-D22A6FD257C5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MwalimuHub.Infrastructure", "MwalimuHub.Infrastructure\MwalimuHub.Infrastructure.csproj", "{8FDCB488-B61D-40A2-A4B6-A4B64CB560EC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +19,14 @@ Global
 		{FCD65838-4D62-412D-AD8C-17FA47C5A2D5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FCD65838-4D62-412D-AD8C-17FA47C5A2D5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FCD65838-4D62-412D-AD8C-17FA47C5A2D5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9BAEDD81-0602-4E9C-8F78-D22A6FD257C5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9BAEDD81-0602-4E9C-8F78-D22A6FD257C5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9BAEDD81-0602-4E9C-8F78-D22A6FD257C5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9BAEDD81-0602-4E9C-8F78-D22A6FD257C5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8FDCB488-B61D-40A2-A4B6-A4B64CB560EC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8FDCB488-B61D-40A2-A4B6-A4B64CB560EC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8FDCB488-B61D-40A2-A4B6-A4B64CB560EC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8FDCB488-B61D-40A2-A4B6-A4B64CB560EC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

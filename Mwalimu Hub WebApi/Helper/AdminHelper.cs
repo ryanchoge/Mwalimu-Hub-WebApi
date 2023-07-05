@@ -52,7 +52,7 @@ namespace Mwalimu_Hub_WebApi.Helper
 
             
         //}
-        public static void EditAdmin(Admin admin)
+        public static void EditAdmin(AdminS admin)
         {
 
         }

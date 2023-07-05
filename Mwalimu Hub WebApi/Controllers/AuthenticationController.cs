@@ -3,92 +3,103 @@ using Mwalimu_Hub_API.Database;
 using Mwalimu_Hub_API.Models;
 using System.Data.SqlClient;
 using System.Data;
-using System.Text.RegularExpressions;
 using System.Text;
 using XSystem.Security.Cryptography;
+using System.Text.RegularExpressions;
+using XAct;
+using MwalimuHub.Contracts.Authentication;
+using Microsoft.AspNetCore.Authentication;
+using Mwalimu_Hub_WebApi.Services.Authenticaton;
+using System.Security.Cryptography;
+
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
-namespace Mwalimu_Hub_API.Controllers
+namespace Mwalimu_Hub_WebApi.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     [ApiController]
     public class AuthenticationController : ControllerBase
     {
-        DatabaseHelper databaseHelper = new DatabaseHelper();
- 
-        [HttpPost("admin/login")]
-        public IActionResult AdminLogin([FromBody] Admin admin)
-        {
-            try
-            {
-                string adminid = admin.AdminId.ToString();
-                string password = admin.Password;
-                byte[] passwordHash = Encoding.UTF8.GetBytes(password);
-                SHA512Managed sha = new SHA512Managed();
-                byte[] hashedPassword = sha.ComputeHash(passwordHash);
-                if (!Regex.Match(adminid, "^[0-9]*$").Success)
-                {
-                    return BadRequest("Invalid User ID");
-                }
-                else
-                {
-                    SqlParameter[] parameters = { new SqlParameter("@username",adminid) ,new SqlParameter("@password", hashedPassword) };
-                    DataTable dataTable = databaseHelper.ExecuteStoredProcedure("SPAuthenticate", parameters);
-                    if (dataTable.Rows.Count > 0)
-                    {
-                        return Ok("Success");
-                    }
-                    else
-                    {
-                        return BadRequest("Invalid credentials");
-                    }
+        private readonly IJwtTokenGenerator _jwtTokenGenerator;
 
-                }
-            }
-            catch(Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
+       private readonly IAuthenticationService _authenticationService;
+        public AuthenticationController(IAuthenticationService authenticationService)
+        {
+            _authenticationService = authenticationService;
+        }
+        public AuthenticationController(IJwtTokenGenerator jwtTokenGenerator)
+        {
+            _jwtTokenGenerator = jwtTokenGenerator; 
+        }
+        [HttpPost("admin")]
+        public IActionResult Login([FromBody]LoginRequest request)
+        {
             
-        } 
-        [HttpPost("teacher/login")]
-        public IActionResult TeacherLogin([FromBody] Teacher teacher)
-        {
+            //_authenticationService.Login();
+            
+            return Ok(request);
+        //    
+           
+        }
 
+
+        // GET api/<AuthenticationController>/5
+        [HttpGet("{id}")]
+        public string Get(int id)
+        {
+            return "value";
+        }
+        
+        // POST api/<AuthenticationController>
+        [HttpPost("teacher/login")]
+        public IActionResult Post([FromBody]Teacher teachers)
+        {
+            DatabaseHelper databaseHelper = new();
 
             try
             {
-                string adminid = teacher.IdNumber.ToString();
-                string password = teacher.Password;
+                string teacherID = teachers.IdNumber.ToString();
+                string password = teachers.Password;
                 byte[] passwordHash = Encoding.UTF8.GetBytes(password);
                 SHA512Managed sha = new SHA512Managed();
                 byte[] hashedPassword = sha.ComputeHash(passwordHash);
-                if (!Regex.Match(adminid, "^[0-9]*$").Success)
+                if (!Regex.Match(teacherID, "^[0-9]*$").Success)
                 {
                     return BadRequest("Invalid User ID");
                 }
-                else
+                SqlParameter[] parameters = { new SqlParameter("@username", teachers.IdNumber)};
+
+                DataTable dataTable = databaseHelper.ExecuteStoredProcedure("SPAuthenticateTeacher", parameters);
+                foreach(DataRow row in dataTable.Rows)
                 {
-                    SqlParameter[] parameters = { new SqlParameter("@username",teacher.IdNumber),new SqlParameter("@password", teacher.Password) };
-                    DataTable dataTable = databaseHelper.ExecuteStoredProcedure("SPAuthenticateTeacher", parameters);
-                    if (dataTable.Rows.Count > 0)
+                    string dbPassword = row["Password"].ToString();
+                    string hashpass = Encoding.UTF8.GetString( hashedPassword);
+                    if (dbPassword == hashpass)
                     {
                         return Ok("Success");
                     }
-                    else
-                    {
-                        return BadRequest("Invalid credentials");
-                    }
 
+                      
+                   
                 }
+                return BadRequest("Invalid Credentials");
+                
             }
             catch (Exception ex)
             {
                 return BadRequest(ex.Message);
             }
         }
+       private bool VerifyPasswordHash(string password, byte[] passwordHash, byte[] passwordSalt)
+        {
+            using(var hmac = new HMACSHA512(passwordSalt))
+            {
+                var computedHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
+                retut
+            }
+
+        }
+
 
     }
-
 }
-

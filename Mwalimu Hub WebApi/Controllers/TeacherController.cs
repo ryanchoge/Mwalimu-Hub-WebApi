@@ -1,7 +1,16 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using ErrorOr;
+using Microsoft.AspNetCore.Mvc;
+using Mwalimu_Hub_API.Database;
 using Mwalimu_Hub_API.Models;
 using Mwalimu_Hub_WebApi.Helper;
+using Mwalimu_Hub_WebApi.Models;
+using Mwalimu_Hub_WebApi.ServiceErrors;
+using Mwalimu_Hub_WebApi.Services.TeacherService;
+using MwalimuHub.Contracts.Teacher;
+using System.Data;
+using System.Data.SqlClient;
 using System.Text.RegularExpressions;
+using static Mwalimu_Hub_WebApi.Controllers.AuthenticationController;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -9,88 +18,57 @@ namespace Mwalimu_Hub_WebApi.Controllers
 {
     [Route("[controller]")]
     [ApiController]
-    public class TeacherController : ControllerBase
+    public class TeacherController : ApiController
     {
-        // GET: api/<TeacherController>
-        [HttpGet]
-        public IEnumerable<string> Get()
+        private readonly ITeacherService _teacherService;
+        public TeacherController(ITeacherService teacherService)
         {
-            return new string[] { "value1", "value2" };
+            _teacherService = teacherService;
         }
 
-        // GET api/<TeacherController>/5
-        [HttpGet("{id}")]
-        public string Get(int id)
+        [HttpPost("SaveAttendance")]
+        public IActionResult SaveAttendance(Attendance response)
         {
-            return "value";
+            var attendance = new Attendance(response.Id,response.ScheduleId,response.Day,response.Time,response.StudentNo,response.Status);
+            //save to database
+            _teacherService.SaveAttendance(attendance);
+           return Ok();
         }
 
-        // POST api/<TeacherController>
-        [HttpPost("CreateNewTeacher")]
-        public IActionResult CreateTeacher([FromBody] Teacher teacher)
+        [HttpGet("SingleTeacher/{id}")]
+        public IActionResult GetTeacher(int id)
         {
+            
+            ErrorOr<DataTable> getDataTableTeacherResult = _teacherService.GetTeacher(id);
+            if(getDataTableTeacherResult.IsError && getDataTableTeacherResult.FirstError == Errors.TeacherS.NotFound)
+            {
+                return NotFound();
+            }
+            var dataTableTeacher = getDataTableTeacherResult.Value;
+            foreach (DataRow row in dataTableTeacher.Rows)
+            {
+                var response = new TeacherResponse(int.Parse(row["id"].ToString()), row["forename"].ToString(),
+                 row["surname"].ToString(), int.Parse(row["idNumber"].ToString()),
+                 row["phonenumber"].ToString(), row["tscnumber"].ToString(), row["department"].ToString(),
+                 row["employer"].ToString(), row["EmployementType"].ToString());
+                return Ok(response);
+            }
+            return Ok();
 
-            if (teacher.Forename == string.Empty || teacher.Surname == string.Empty || teacher.PhoneNumber == string.Empty || teacher.Employer == string.Empty || teacher.EmployerType == string.Empty || teacher.Department == string.Empty || teacher.Password == string.Empty)
-            {
-               return BadRequest("Only Tsc number can be empty");
-                
-
-            }
-            if (!Regex.Match(teacher.Forename, "^[a-zA-Z]*$").Success || teacher.Forename.Length > 100)
-            {
-                return BadRequest("Invalid Forename.");
-                
-            }
-            if (!Regex.Match(teacher.Surname, "^[a-zA-Z]*$").Success || teacher.Surname.Length > 50)
-            {
-                return BadRequest($"Invalid Surname.");
-                
-            }
-            if (!Regex.Match(teacher.IdNumber.ToString(), "^[0-9]*$").Success || teacher.IdNumber.ToString().Length > 9 || teacher.IdNumber.ToString().Length < 6)
-            {
-                return BadRequest("Invalid Id Number.");
-                
-            }
-
-            if (!Regex.Match(teacher.PhoneNumber, "^[0-9]*$").Success || teacher.PhoneNumber.Length > 20 || teacher.PhoneNumber.Length < 10)
-            {
-                return BadRequest("Invalid Phone Number.");
-               
-            }
-
-            else
-            {
-                if (teacher.TscNumber.Length > 20 || !Regex.Match(teacher.TscNumber, "^[0-9+]*$").Success)
-                {
-                    return BadRequest("Invalid TSC Number.");
-                    
-                }
-                if (teacher.TscNumber == string.Empty)
-                {
-                    teacher.TscNumber = "0";
-                }
-                bool teacherCreated = TeacherHelper.CreateTeacher(teacher);
-                if (teacherCreated)
-                {
-                    return Ok("Teacher added successfully");
-                }
-                else
-                {
-                    return BadRequest("Teacher already exist");
-                }
-
-            }
+         
+            
         }
-        // PUT api/<TeacherController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
-        {
-        }
+        
 
         // DELETE api/<TeacherController>/5
         [HttpDelete("{id}")]
         public void Delete(int id)
         {
+            _teacherService.DeleteTeacher(id);
         }
+        //public bool CheckNulls()
+        //{
+
+        //}
     }
 }
