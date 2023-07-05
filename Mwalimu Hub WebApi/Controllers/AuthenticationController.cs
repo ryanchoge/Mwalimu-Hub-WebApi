@@ -61,7 +61,7 @@ namespace Mwalimu_Hub_WebApi.Controllers
                 string teacherID = teachers.IdNumber.ToString();
                 string password = teachers.Password;
                 byte[] passwordHash = Encoding.UTF8.GetBytes(password);
-                SHA512Managed sha = new SHA512Managed();
+                XSystem.Security.Cryptography.SHA512Managed sha = new ();
                 byte[] hashedPassword = sha.ComputeHash(passwordHash);
                 if (!Regex.Match(teacherID, "^[0-9]*$").Success)
                 {
@@ -94,8 +94,8 @@ namespace Mwalimu_Hub_WebApi.Controllers
         {
             using(var hmac = new HMACSHA512(passwordSalt))
             {
-                var computedHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
-                retut
+                var computedHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(password));
+                return computedHash.SequenceEqual(passwordHash);
             }
 
         }
